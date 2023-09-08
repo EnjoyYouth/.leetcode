@@ -1,7 +1,7 @@
 /*
- * @lc app=leetcode.cn id=230 lang=java
+ * @lc app=leetcode.cn id=783 lang=java
  *
- * [230] 二叉搜索树中第K小的元素
+ * [783] 二叉搜索树节点最小距离
  */
 
 // @lc code=start
@@ -25,11 +25,12 @@ import java.util.Deque;
  * }
  */
 class Solution {
-    public int kthSmallest(TreeNode root, int k) {
-        if(root == null) return -1;
+    public int minDiffInBST(TreeNode root) {
+        if(root == null) return 0;
         Deque<TreeNode> que = new ArrayDeque<>();
 
-        int count = 0;
+        int res = Integer.MAX_VALUE;
+        TreeNode pre = null;
         while(root != null || !que.isEmpty()){
             while(root != null){
                 que.offerLast(root);
@@ -38,12 +39,16 @@ class Solution {
 
             if(!que.isEmpty()){
                 TreeNode n = que.pollLast();
-                if(++count == k) return n.val;
+                if(pre != null){
+                    res = Math.min(res, Math.abs(n.val - pre.val));
+                }
+
+                pre = n;
                 root = n.right;
             }
         }
 
-        return -1;
+        return res;
     }
 }
 // @lc code=end
