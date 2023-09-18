@@ -26,10 +26,10 @@ import java.util.Deque;
  */
 class Solution {
     public void recoverTree(TreeNode root) {
-        if(root == null) return;
         Deque<TreeNode> que = new ArrayDeque<>();
 
-        TreeNode pre = null, a = null, b = null;
+        TreeNode pre = null;
+        TreeNode a = null, b = null;
         while(root != null || !que.isEmpty()){
             while(root != null){
                 que.offerLast(root);
@@ -38,15 +38,10 @@ class Solution {
 
             if(!que.isEmpty()){
                 TreeNode n = que.pollLast();
-                
-                if(pre != null && a==null && pre.val > n.val){
-                    // 找到的问题节点
-                    // System.out.println(String.format("%s, %s", pre.val, n.val));
+                if(pre != null && pre.val > n.val && a == null){
                     a = pre;
                 }
-
-                if(a != null && b==null && a.val < n.val){
-                    // System.out.println(String.format("%s, %s, %s", a.val, n.val, pre.val));
+                if(a != null && a.val < n.val && b == null){
                     b = pre;
                 }
 
@@ -54,9 +49,8 @@ class Solution {
                 root = n.right;
             }
         }
-        if(b == null) b = pre;
 
-        // System.out.println(String.format("%s, %s", a.val, b.val));
+        b = b == null ? pre : b;
 
         int tmp = a.val;
         a.val = b.val;
