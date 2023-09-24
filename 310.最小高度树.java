@@ -13,44 +13,66 @@ import java.util.List;
 import java.util.Queue;
 
 class Solution {
+    List<Integer>[] grid;
+    int[] f1, f2, g, p;
     public List<Integer> findMinHeightTrees(int n, int[][] edges) {
-        if(edges.length == 0) return Arrays.asList(0);
-        List<Integer>[] grid = new List[n];
+        grid = new List[n];
+        f1 = new int[n]; f2 = new int[n]; g = new int[n]; p = new int[n];
+
         for(int i=0; i<n; i++){
             grid[i] = new ArrayList<>();
         }
-        int[] degree = new int[n];
-
         for(int[] e : edges){
-            int a = e[0], b = e[1];
-            grid[a].add(b);
-            grid[b].add(a);
-
-            degree[a]++;
-            degree[b]++;
+            grid[e[0]].add(e[1]);
+            grid[e[1]].add(e[0]);
         }
 
-        Queue<Integer> que = new ArrayDeque<>();
+        dfs1(0, -1);
+        dfs2(0, -1);
+
+        List<Integer> ans = new ArrayList<>();
+        int now = Integer.MAX_VALUE;
         for(int i=0; i<n; i++){
-            if(degree[i] == 1) que.offer(i);
+            int cur = Math.max(f1[i], g[i]);
+            if(cur < now){
+                ans.clear();
+                now = cur;
+                ans.add(i);
+            }else if(cur == now){
+                ans.add(i);
+            }
         }
-        List<Integer> res = new ArrayList<>();
-        while(!que.isEmpty()){
-            res = new ArrayList<>();
-            int size = que.size();
-            for(int i=0; i<size; i++){
-                int q = que.poll();
-                res.add(q);
-                for(int j=0; j<grid[q].size(); j++){
-                    int t = grid[q].get(j);
-                    if(--degree[t] == 1){
-                        que.offer(t);
-                    }
-                }
+        return ans;
+    }
+
+    int dfs1(int u, int fa){
+        for(int i=0; i<grid[u].size(); i++){
+            int t = grid[u].get(i);
+            if(t == fa) continue;
+            int sub = dfs1(t, u) + 1;
+            if(sub > f1[u]){
+                f2[u] = f1[u];
+                f1[u] = sub;
+                p[u] = t;
+            }else if(sub > f2[u]){
+                f2[u] = sub;
             }
         }
 
-        return res;
+        return f1[u];
+    }
+
+    void dfs2(int u, int fa){
+        for(int i=0; i<grid[u].size(); i++){
+            int t = grid[u].get(i);
+            if(t == fa) continue;
+
+            if(p[u] == t) g[t] = f2[u]+1;
+            else g[t] = f1[u] + 1;
+            g[t] = Math.max(g[t], g[u] + 1);
+
+            dfs2(t, u);
+        }
     }
 }
 // @lc code=end
